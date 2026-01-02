@@ -1,4 +1,5 @@
 __pycache__
+.vscode
 example/說明.doc
-cache/
+cache
 object.txt

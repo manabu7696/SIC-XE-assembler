@@ -133,24 +133,63 @@ class SIC_XE_assembler:
                     else:
                         return -4 # invalid instruction format
     
-    def assemble(self, mnemonic, oprand = ''):
-        if dataModel.getInstructionInfo(mnemonic) == -1:
-            if mnemonic == 'BYTE':
-                return byteConvert(oprand)
-            elif mnemonic == 'WORD':
-                return wordConvert(oprand)
+    def oprandProcess(self, format, oprand = []):
+        oprandValue = []
+        if format == '2':
+            if oprand == []:
+                oprandValue = [0]
             else:
-                return -1
+                for symbol in oprand:
+                    value = int(self.symbolTable['reg'].get(symbol, '-4'), 16)
+                    if value == -4:
+                        value = 0
+                        self.errFlag = -4
+                    oprandValue.append(value)
+                if len(oprandValue) == 1:
+                    oprandValue.append(0)
+        elif format == '3/4':
+            if oprand == []:
+                oprandValue = [0]
+            else:
+                for symbol in oprand:
+                    value = int(self.symbolTable.get(symbol, -4), 16)
+                    if value == -4:
+                        value = 0
+                        self.errFlag = -4
+                    oprandValue.append(value)
+        return oprandValue
+
+    def assemble(self, mnemonic, oprand = []):
+        if mnemonic.startswith('+'):
+            mnemonic = mnemonic.strip('+')
+            if dataModel.getInstructionFormat(mnemonic) == '3/4':
+                if len(oprand) == dataModel.getArgumentAmount(mnemonic):
+                    oprand = self.oprandProcess('3/4', oprand)
+                    
+                else:
+                    return -5
+            else:
+                return -6
         else:
-            if oprand == '':
-                oprand = 0
+            if dataModel.getInstructionInfo(mnemonic) == -1:
+                if mnemonic == 'BYTE':
+                    return byteConvert(oprand)
+                elif mnemonic == 'WORD':
+                    return wordConvert(oprand)
+                else:
+                    return -1
             else:
-                oprand = int(self.symbolTable.get(oprand, -4), 16)
-                if oprand == -4:
-                    oprand = 0
-                    self.errFlag = -4
-            
-            
+                if len(oprand) == dataModel.getArgumentAmount(mnemonic):
+                    if dataModel.getInstructionFormat(mnemonic) == '1':
+                        return hex(dataModel.getOpCode(mnemonic)).strip('0x')
+                    elif dataModel.getInstructionFormat(mnemonic) == '2':
+                        oprand = self.oprandProcess('2', oprand)
+                        return hex(dataModel.getOpCode(mnemonic) * 0x100 + oprand[0] * 0x10 + oprand[1]).strip('0x')
+                    elif dataModel.getInstructionFormat(mnemonic) == '3/4':
+                        if
+                    
+                else:
+                    return -5
 
     def passTwoParser(self, codeStr):
         self.lineCounter += 1
