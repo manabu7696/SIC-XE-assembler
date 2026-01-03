@@ -41,7 +41,7 @@ def passTwo(intermediateFilePath):
     with open(intermediateFilePath, 'r') as f:
         with open(objectProgramPath, 'w') as objFile:
             print('Pass 2')
-            print('loc\tsource code\toperand\tobject code\n')
+            print('line\tloc\tsource code\toperand\t\tobject code')
 
             # pass 2
             while True:
@@ -49,13 +49,18 @@ def passTwo(intermediateFilePath):
                 if codeStr == '':
                     break
                 status = asm.passTwoParser(codeStr)
-                if status == 1:
-                    print(codeStr)
+                if status == 0:
+                    continue
+                elif status == 1:
+                    print(f'{asm.lineCounter - 1}\t{codeStr.strip()}')
                     objFile.write(f'H{asm.objectCode}\n')
+                elif status == 2:
+                    print(f'{asm.lineCounter - 1}\t{codeStr.strip('\n')}{asm.objectCode}')
                 elif status == 3:
-                    print(codeStr)
+                    print(f'{asm.lineCounter - 1}\t{codeStr}')
                     objFile.write(f'E{asm.objectCode}')
-            print(asm.symbolTable)
+                else:
+                    print(f'{asm.lineCounter - 1}\t{codeStr.strip()}\t{asm.objectCode}\t{status}')
 
 
 def main(argvList):

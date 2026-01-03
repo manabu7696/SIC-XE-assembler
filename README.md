@@ -23,5 +23,8 @@ python main.py <option> <source_file>
 * -2 : Constant type error
 * -3 : 'Constant too big' error
 * -4 : 'Can't find the symbol' error
-* -5 : 'Invalid length of oprand' error
+* -5 : 'Invalid format of oprand' error
 * -6 : 'Not a format 4 instruction' error
+* -7 : 'Out of range of both relative addressing mode' error
+* -8 : 'Out of range of program counter relative addressing mode' error
+* -9 : 'Out of range of the space of memory' error
