@@ -93,6 +93,8 @@ class SIC_XE_assembler:
         self.base = None
         self.objectCode = ''
         self.errFlag = 0
+        self.isVariable = False
+        self.isNeedReloc = False
     
     def passOneParser(self, codeStr):
         self.lineCounter += 1
@@ -185,6 +187,7 @@ class SIC_XE_assembler:
                 if dataModel.getInstructionFormat(mnemonic) == '3/4':
                     extend = 1
                     needRelative = False
+                    self.isNeedReloc = True
                     if len(oprand) == 1:
                         if oprand[0].startswith('@'):
                             immediate = 0
@@ -199,6 +202,7 @@ class SIC_XE_assembler:
                             indirect = 0
                             oprand[0] = oprand[0].strip('#')
                             oprandTemp = self.oprandProcess('3/4', oprand)
+                            self.isNeedReloc = False
                             if self.errFlag == -4:
                                 addr = int(oprand[0])
                                 self.errFlag = 0
@@ -310,6 +314,8 @@ class SIC_XE_assembler:
     def passTwoParser(self, codeStr):
         self.objectCode = ''
         self.lineCounter += 1
+        self.isVariable = False
+        self.isNeedReloc = False
         if self.lineCounter == 1 and codeStr.startswith('{'):
             self.symbolTable = json.loads(codeStr)
             return 0
@@ -327,6 +333,7 @@ class SIC_XE_assembler:
                     if len(self.codeList) == 4:
                         if self.codeList[2] == 'RESW' or self.codeList[2] == 'RESB':
                             self.objectCode = ''
+                            self.isVariable = True
                         else:
                             oprand = self.codeList[3].split(',')
                             result = self.assemble(self.codeList[2], oprand)
