@@ -349,7 +349,7 @@ class SIC_XE_assembler:
             self.codeList = codeStr.split()
             self.locCounter = int(self.codeList[0], 16)
             if self.lineCounter == 2 and len(self.codeList) == 4 and self.codeList[2] == 'START':
-                self.objectCode = f'{self.codeList[1].ljust(6)}{self.codeList[3].rjust(6, '0')}{self.symbolTable['programLen'].strip('0x').rjust(6, '0')}'
+                self.objectCode = f'{self.codeList[1].ljust(6)}{self.codeList[3].rjust(6, '0')}{format(int(self.symbolTable['programLen'], 16),'X').rjust(6, '0')}'
                 return 1
             elif self.codeList[1] == 'END':
                 self.objectCode = f'{self.symbolTable[self.codeList[2]].strip('0x').rjust(6, '0')}'
