@@ -352,7 +352,7 @@ class SIC_XE_assembler:
                 self.objectCode = f'{self.codeList[1].ljust(6)}{self.codeList[3].rjust(6, '0')}{format(int(self.symbolTable['programLen'], 16),'X').rjust(6, '0')}'
                 return 1
             elif self.codeList[1] == 'END':
-                self.objectCode = f'{self.symbolTable[self.codeList[2]].strip('0x').rjust(6, '0')}'
+                self.objectCode = f'{format(int(self.symbolTable[self.codeList[2]],16), 'X').rjust(6, '0')}'
                 return 3
             else:
                 if '.' not in self.codeList: # not a comment

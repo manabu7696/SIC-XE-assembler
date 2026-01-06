@@ -40,7 +40,7 @@ def passTwo(intermediateFilePath, isSIC = False):
     textRecordBuf = ''
     modRecordBuf = ''
     modLen = 5
-    isValPrevious = True
+    isValPrevious = False
     with open(intermediateFilePath, 'r') as f:
         with open(objectProgramPath, 'w') as objFile:
             print('Pass 2')
@@ -59,24 +59,29 @@ def passTwo(intermediateFilePath, isSIC = False):
                     objFile.write(f'H{asm.objectCode}\n')
                 elif status == 2:
                     print(f'{asm.lineCounter - 1}\t{codeStr.strip()}\t\t{asm.objectCode}')
-                    if len(textRecordBuf + asm.objectCode) > 60 and len(textRecordBuf) <= 60:
+                    if asm.isVariable:
+                        if isValPrevious:
+                            continue
+                        else:
+                            objFile.write(f'T{format(recordStartingAddr, 'X').rjust(6, '0')}{format(len(textRecordBuf)//2, 'X').rjust(2, '0')}{textRecordBuf}\n')
+                            textRecordBuf = ''
+                            recordStartingAddr = 0
+                            isValPrevious = True
+                    elif len(textRecordBuf + asm.objectCode) > 60 and len(textRecordBuf) < 60:
                         objFile.write(f'T{format(recordStartingAddr, 'X').rjust(6, '0')}{format(len(textRecordBuf)//2, 'X').rjust(2, '0')}{textRecordBuf}\n')
                         textRecordBuf = asm.objectCode
                         recordStartingAddr = asm.locCounter
+                    elif len(textRecordBuf + asm.objectCode) == 60 :
+                        textRecordBuf += asm.objectCode
+                        objFile.write(f'T{format(recordStartingAddr, 'X').rjust(6, '0')}{format(len(textRecordBuf)//2, 'X').rjust(2, '0')}{textRecordBuf}\n')
+                        textRecordBuf = ''
                     elif len(textRecordBuf + asm.objectCode) < 60 and len(textRecordBuf) < 60:
-                        if asm.isVariable:
-                            if isValPrevious:
-                                continue
-                            else:
-                                objFile.write(f'T{format(recordStartingAddr, 'X').rjust(6, '0')}{format(len(textRecordBuf)//2, 'X').rjust(2, '0')}{textRecordBuf}\n')
-                                textRecordBuf = ''
-                                recordStartingAddr = 0
-                                isValPrevious = True
-                        else:
-                            if isValPrevious:
-                                recordStartingAddr = asm.locCounter
-                                isValPrevious = False
-                            textRecordBuf += asm.objectCode
+                        if textRecordBuf == '':
+                            recordStartingAddr = asm.locCounter
+                        if isValPrevious:
+                            recordStartingAddr = asm.locCounter
+                            isValPrevious = False
+                        textRecordBuf += asm.objectCode
                                 
                     if asm.isNeedReloc:
                         modRecordBuf += f'M{format(asm.locCounter + 1, 'X').rjust(6, '0')}{format(modLen, 'X').rjust(2, '0')}\n'
