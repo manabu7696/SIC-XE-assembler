@@ -84,12 +84,12 @@ def lenCalc(keyword, oprand = ''):
             return instructionLen(keyword)
 
 class SIC_XE_assembler:
-    def __init__(self):
+    def __init__(self, isSIC = False):
         self.symbolTable = {}
         self.symbolTable['reg'] = dataModel.REGISTER_SYMBOL_TABLE
         self.lineCounter = 0
         self.nextLocCounter = 0 # set the default nextLoc
-        self.isSIC = False
+        self.isSIC = isSIC
         self.base = None
         self.objectCode = ''
         self.errFlag = 0
@@ -102,7 +102,7 @@ class SIC_XE_assembler:
 
         # if line 1 is under specific format(XXXX START <start_address>), do the corresponding process
         if self.lineCounter == 1 and len(self.codeList) == 3 and self.codeList[1] == 'START':
-            self.symbolTable['start'] = hex(int(self.codeList[2])) # save the start address
+            self.symbolTable['start'] = hex(int(self.codeList[2],16)) # save the start address
             self.locCounter = int(self.symbolTable['start'], 16)
             self.nextLocCounter = self.locCounter # initial the loc and nextLoc
         
@@ -173,6 +173,32 @@ class SIC_XE_assembler:
             relativeBase = 0
             relativePC = 0
             extend = 0
+            if dataModel.getInstructionInfo(mnemonic) == -1:
+                    if mnemonic == 'BYTE':
+                        return byteConvert(oprand[0])
+                    elif mnemonic == 'WORD':
+                        return wordConvert(oprand[0])
+                    else:
+                        return -1
+            else:
+                if len(oprand) == 2 and oprand[1] == 'X':
+                    index = 1
+                    oprandTemp = self.oprandProcess('3/4', [oprand[0]])
+                    if self.errFlag == -4:
+                        addr = int(oprand[0])
+                        self.errFlag = 0
+                    else:
+                        addr = oprandTemp[0]
+                else:
+                    oprandTemp = self.oprandProcess('3/4', oprand)
+                    if self.errFlag == -4:
+                        addr = int(oprand[0])
+                        self.errFlag = 0
+                    else:
+                        addr = oprandTemp[0]
+                if addr >= 2 ** 15:
+                    return -9
+                return format(dataModel.getOpCode(mnemonic) * 2 ** 16 + indirect * 2 ** 17 + immediate * 2 ** 16 + index * 2 ** 15 + relativeBase * 2 ** 14 + relativePC * 2 ** 13 + extend * 2 ** 12 + addr, 'X').rjust(6, '0')
         else:
             indirect = 1
             immediate = 1

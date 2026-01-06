@@ -6,7 +6,11 @@
 python main.py <option> <source_file>
 ```
 
-`-i` or `--intermediate` : Assemble from intermediate file. (Just do pass 2)
+* `-s` or `--symbol` : Just generate the intermediate file. (Just do pass 1)
+* `-i` or `--intermediate` : Assemble from intermediate file. (Just do pass 2)
+* `-c` or `--sic` : Downward compatible SIC instrucion set.
+
+Note : You can select only 1 option to fill in the column for the version of assembler 
 
 ## Error code
 
