@@ -21,7 +21,7 @@ Note : You can select only 1 option to fill in the column for the version of ass
 * -3 : 'Duplicated symbol' error
 * -4 : 'Invalid instruction format' error
 
-### pass 2 (Still in devlopment)
+### pass 2
 
 * -1 : 'Invalid operation code or keyword' error
 * -2 : Constant type error
